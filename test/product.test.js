@@ -165,4 +165,42 @@ describe('Products', () => {
 
     testUpdateProduct();
   });
+
+  it('should return all products belonging to category specified in categoryId in /products/category/:categoryId', done => {
+    async function testGetAllProductsByCategoryId() {
+      const newCategory = new Category({
+        name: 'Toys'
+      });
+      const categoryData = await newCategory.save();
+      const product1 = new Product({
+        name: 'Miles toy',
+        categoryId: categoryData.id,
+        description: 'Kinky shit',
+        price: '1,000',
+      });
+
+      const product1Data = await product1.save();
+
+      const product2 = new Product({
+        name: 'Yugin',
+        categoryId: categoryData.id,
+        description: 'kinkier shit',
+        price: 'P 5.00',
+      });
+      const product2Data = await product2.save();
+
+      chai.request(server)
+        .get(`/products/category/${categoryData.id}`)
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.should.be.json;
+          res.body.should.be.a('array');
+          res.body.should.have.lengthOf(2);
+          res.body[0].name.should.equal('Miles toy');
+          done();
+        });
+    }
+
+    testGetAllProductsByCategoryId();
+  });
 });
