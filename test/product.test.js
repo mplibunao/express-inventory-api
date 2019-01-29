@@ -203,4 +203,33 @@ describe('Products', () => {
 
     testGetAllProductsByCategoryId();
   });
+
+  it('should delete a product using /products/:productId', done => {
+    async function testDeleteProduct () {
+      const newCategory = new Category({
+        name: 'Art'
+      });
+      const categoryData = await newCategory.save();
+
+      const newProduct = new Product({
+        name: 'Sample product',
+        categoryId: categoryData.id,
+        description: 'Pake mo ba',
+        price: '999'
+      });
+      const productData = await newProduct.save();
+
+      chai.request(server)
+        .get(`/products/${productData.id}`)
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.should.be.json;
+          res.body.should.be.a('object');
+          res.body.message.should.equal('Product deleted successfully');
+        });
+      done();
+    }
+
+    testDeleteProduct();
+  });
 });
